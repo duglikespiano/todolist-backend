@@ -34,10 +34,6 @@ myDataSource.initialize().then(() => {
 	console.log('Data Source has been initialized');
 });
 
-app.get('/ping', (req, res) => {
-	res.json({ message: 'pong!' });
-});
-
 const getAllTodos = async (req, res) => {
 	const data = await myDataSource.query(`SELECT * FROM todo`);
 	res.json({ data: data });
@@ -45,13 +41,12 @@ const getAllTodos = async (req, res) => {
 
 const addTodo = async (req, res) => {
 	const { todo, category, toggle } = req.body;
-	console.log(todo);
 	await myDataSource.query(
 		`INSERT INTO todo (todo, category, toggle) VALUES (?, ?, ?)`,
 		[todo, category, toggle]
 	);
 
-	res.status(201);
+	res.status(201).json({ message: 'todo_added' });
 };
 
 const modifyTodo = async (req, res) => {
@@ -60,25 +55,27 @@ const modifyTodo = async (req, res) => {
 		`UPDATE todo SET todo =(?) WHERE id =(?) AND category =(?)`,
 		[todo, id, category]
 	);
-	res.status(200);
+	res.status(200).json({ message: 'todo_modified' });
 };
 
 const removeTodo = async (req, res) => {
 	const { id } = req.body;
 	await myDataSource.query(`DELETE FROM todo WHERE id = ?`, [id]);
-	res.status(204);
+	res.status(200).json({ message: 'todo_removed' });
 };
 
 const modifyCategory = async (req, res) => {
 	const { category } = req.body;
 	await myDataSource.query(`UPDATE todo SET category =(?)`, [category]);
-	res.status(200);
+	res.status(200).json({ message: 'category_name_modified' });
 };
 
 const removeAllTodos = async (req, res) => {
 	const { category } = req.body;
 	myDataSource.query(`DELETE FROM todo WHERE category =(?)`, [category]);
+	res.status(200).json({ message: 'category_cleared' });
 };
+
 app.get('/todo', getAllTodos);
 app.post('/todo', addTodo);
 app.patch('/todo', modifyTodo);
